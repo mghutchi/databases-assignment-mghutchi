@@ -1,0 +1,31 @@
+CREATE TABLE "BP_data" (
+  "id" INTEGER PRIMARY KEY  AUTOINCREMENT NOT NULL ,
+  "sonde_event_id" INTEGER NOT NULL ,
+  "DateTime" DATETIME,
+  "BP" DOUBLE,
+  FOREIGN KEY ("sonde_event_id") REFERENCES sonde_events("id")
+)
+
+SELECT
+  sonde_events.id,
+  sonde_events.site_id,
+  AVG(BP_data.BP) AS avg_BP
+FROM BP_data 
+JOIN sonde_events ON (sonde_events.id = BP_data.sonde_event_id)
+GROUP BY sonde_events.id;
+
+
+SELECT
+  sonde_data.sonde_event_id,
+  MIN (sonde_data.DO) AS min_DO,
+  MAX (sonde_data.DO) AS max_DO,
+  subquery. sonde_event_id
+FROM sonde_data
+JOIN (
+  SELECT
+    BP_data.sonde_event_id,
+    AVG(BP_data.BP) AS avg_BP
+  FROM BP_data
+  GROUP BY BP_data.sonde_event_id
+) AS subquery ON (subquery.sonde_event_id = sonde_data.sonde_event_id)
+GROUP BY sonde_data.sonde_event_id;
